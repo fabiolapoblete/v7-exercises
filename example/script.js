@@ -1,69 +1,94 @@
-const speed = 2000;
-const appearance = 800;
-const holes = document.querySelectorAll('main article');
-let currentHole = null;
+const holes = document.querySelectorAll("main article");
+let currentHole;
+let moleAppearance = 800;
 let molesWhacked = 0;
 let currentTime = 60;
-let hits = 0;
 
-// Append listener
-holes.forEach(hole => {
-    hole.addEventListener('click', (e) => {
-        let whackedHole = hole.getAttribute('data-id');
-        if(parseInt(whackedHole) === currentHole) {
-            // Hit!
-           // +1 on score
-            molesWhacked++
-
-            // Update whacked moles gui
-            document.querySelector('.moleswhacked b').innerHTML = molesWhacked;
-
-            // add class to show hit
-            document.querySelector(`[data-id="${whackedHole}"]`).classList.add('hit');
-            setTimeout(() => {
-                document.querySelector(`[data-id="${whackedHole}"]`).classList.remove('hit');
-            }, appearance);
-        }
-    })
-})
-
-let gameLoop = setInterval(() => {
-    // Empty holes
-    holes.forEach(hole => hole.classList.remove('mole'));
-
-    // Pick random hole to pop up
-    let randomId = Math.floor(Math.random() * holes.length);
-    
-    // register as current Hole
-    currentHole = randomId;
-
-    let el = document.querySelector(`[data-id="${randomId}"]`);
-    el.classList.add('mole');
-
-    // Just make the apperance short
-    setTimeout(() => {
-
-        holes.forEach(hole => hole.classList.remove('mole'));
-        currentHole = null
-
-    }, appearance)
-}, speed);
+gameLoop();
 
 let timer = setInterval(() => {
-     // Check if time left
-     if(currentTime >= 0) {
+  // Check if time left
 
-        // Update timer in gui
-        document.querySelector('.timeleft b').innerHTML = `${currentTime}s`;
+  if (currentTime >= 0) {
+    // Update timer in gui
+    document.querySelector(".timeleft b").innerHTML = `${currentTime}s`;
 
-        // count down current time
-        currentTime--;
+    // count down current time
+    currentTime--;
+  } else {
+    // Game over
+    clearInterval(timer);
+    clearInterval(gameLoop);
 
-    } else {
-        // Game over
-        clearInterval(timer)
-        clearInterval(gameLoop)
-
-        alert(`You whacked ${molesWhacked} moles in 60 sec.`)
-    }
+    alert(`You whacked ${molesWhacked} moles in 60 sec.`);
+  }
 }, 1000);
+
+function gameLoop() {
+  appendListener();
+
+  let moleSpeed = 2000;
+
+  setInterval(() => {
+    //Empty holes
+    holes.forEach((hole) => hole.classList.remove("mole"));
+
+    //Pick random hole to pop up
+    let randomId = Math.floor(Math.random() * holes.length);
+    currentHole = randomId; //Set ranomdId to current hole
+
+    let currentHoleDisplay = document.querySelector(`[data-id="${randomId}"]`);
+    currentHoleDisplay.classList.add("mole");
+
+    setTimeout(() => {
+      currentHoleDisplay.classList.remove("mole");
+      currentHole = null;
+    }, moleAppearance);
+  }, moleSpeed);
+}
+
+function appendListener() {
+  holes.forEach((hole) => {
+    hole.addEventListener("click", () => {
+      let whackedHole = hole.getAttribute("data-id");
+      checkIfWhacked(whackedHole);
+    });
+  });
+}
+
+function checkIfWhacked(whackedHole) {
+  let molesWhackedDisplay = document.querySelector(".moleswhacked b");
+  let hitDisplay = document.querySelector(`[data-id="${whackedHole}"]`);
+
+  if (parseInt(whackedHole) === currentHole) {
+    molesWhacked++;
+    molesWhackedDisplay.innerHTML = molesWhacked;
+    hitDisplay.classList.add("hit");
+
+    setTimeout(() => {
+      hitDisplay.classList.remove("hit");
+    }, moleAppearance);
+  }
+}
+
+// function timer() {
+//   setInterval(() => {
+//     //Check if time left
+//     let timeLeft = document.querySelector(".timeleft b");
+//     let currentTime = 60;
+
+//     if (currentTime >= 0) {
+//       //Update timer in gui and count down current time
+//       timeLeft.innerHTML = `${currentTime}s`;
+//       currentTime--;
+//     } else {
+//       //game is over
+//       //   clearInterval(timer);
+//       //   clearInterval(gameLoop);
+
+//       alert(`You whacked ${molesWhacked} moles in 60 sec.`);
+//     }
+
+//     console.log(currentTime);
+//   }, 1000);
+// }
